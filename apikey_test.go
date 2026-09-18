@@ -587,12 +587,16 @@ func (ms *MfaSuite) TestReEncryptWebAuthnUser() {
 		user WebauthnUser
 	}{
 		{
-			name: "rotate U2F user",
+			name: "rotate user with no credentials",
 			user: users[0],
 		},
 		{
-			name: "rotate WebAuthn user",
+			name: "rotate user with one WebAuthn credential",
 			user: users[1],
+		},
+		{
+			name: "rotate user with two WebAuthn credentials",
+			user: users[2],
 		},
 	}
 	for _, tt := range tests {
@@ -606,14 +610,6 @@ func (ms *MfaSuite) TestReEncryptWebAuthnUser() {
 
 			dbUser := WebauthnUser{ID: tt.user.ID, ApiKey: newKey, Store: storage}
 			must(dbUser.Load())
-
-			// check U2F data
-			ms.DifferentOrEmptyString(tt.user.EncryptedAppId, dbUser.EncryptedAppId)
-			ms.DifferentOrEmptyString(tt.user.EncryptedKeyHandle, dbUser.EncryptedKeyHandle)
-			ms.DifferentOrEmptyString(tt.user.EncryptedPublicKey, dbUser.EncryptedPublicKey)
-			ms.Equal(tt.user.AppId, dbUser.AppId)
-			ms.Equal(tt.user.KeyHandle, dbUser.KeyHandle)
-			ms.Equal(tt.user.PublicKey, dbUser.PublicKey)
 
 			// check WebAuthn data
 			ms.DifferentOrNilByteSlice(tt.user.EncryptedCredentials, dbUser.EncryptedCredentials)
